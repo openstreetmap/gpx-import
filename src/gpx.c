@@ -31,6 +31,8 @@
 #include <stdarg.h>
 #include <time.h>
 #include <inttypes.h>
+#include <ctype.h>
+#include <math.h>
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -294,7 +296,11 @@ gpx_handle_end_element(void *_ctx, const XML_Char *name)
     REQUIRE_STATE(ELEVATION);
     ctx->point->elevation = strtof(ctx->accumulator ? ctx->accumulator : "", NULL);
     ctx->state = TRACKPOINT;
-    ctx->got_ele = true;
+    if (isnan(ctx->point->elevation)) {
+      ctx->point->elevation = 0.0;
+    } else {
+      ctx->got_ele = true;
+    }
   } else if (strcmp(name, "time") == 0) {
     char *pnull = NULL;
     char *tptr = ctx->accumulator ? ctx->accumulator : "";
