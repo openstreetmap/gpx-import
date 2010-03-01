@@ -133,7 +133,11 @@ gpx_parse_coord(const XML_Char *str)
   bool is_neg = false;
   bool is_afterdot = false;
   int afterdot = 0;
-  
+
+  while (isspace(*str)) {
+     str++;
+  }
+
   if (*str == '-') {
     is_neg = true;
     str++;
