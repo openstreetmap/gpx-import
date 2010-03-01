@@ -497,7 +497,7 @@ gpx_parse_archive(GPXParseContext *ctx, const char *gpxfile)
   while ((ret = archive_read_next_header(arch, &ent)) == ARCHIVE_OK) {
     ctx->subfile = archive_entry_pathname(ent);
     sublen = archive_entry_size(ent);
-    if (sublen > 0) {
+    if (sublen > 0 && strncmp(ctx->subfile, "__MACOSX/", 9) != 0) {
       INFO("Considering sub-entry %s in job", ctx->subfile);
       /* There's data, let's try and parse it */
       gpx_create_parser(ctx);
