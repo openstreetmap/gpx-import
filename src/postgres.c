@@ -187,6 +187,7 @@ db_find_work(int minage)
       int tlen = strlen(name) + strlen(email) + 4; /* space '<' '>' NULL */
       ret->email = malloc(tlen);
       snprintf(ret->email, tlen, "%s <%s>", name, email);
+      ret->name = strdup(name);
     } else {
       db_error(ret, "Database error while retrieving user information for user %"PRId64"", user);
     }
@@ -196,10 +197,14 @@ db_find_work(int minage)
   
   if (ret != NULL && ret->error == NULL) {
     /* Attempt to retrieve the tags */
-    QUERY(result, "select array_to_string(array(select tag from gpx_file_tags where gpx_id=%"PRId64"),',')", ret->gpx_id);
-    if ((PQntuples(result) > 0) &&
-	(PQnfields(result) == 1)) {
-      ret->tags = BLANKOR(PQgetvalue(result, 0, 0));
+    QUERY(result, "select tag from gpx_file_tags where gpx_id=%"PRId64, ret->gpx_id);
+    if (PQnfields(result) == 1) {
+      for (int row = 0; row < PQntuples(result); row++) {
+        DBTag *tag = malloc(sizeof(DBTag));
+        tag->name = strdup(PQgetvalue(result, row, 0));
+        tag->next = ret->tags;
+        ret->tags = tag;
+      }
     } else {
       db_error(ret, "Database error while retrieving GPX tags for file %"PRId64"\n", ret->gpx_id);
     }

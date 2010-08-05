@@ -61,9 +61,11 @@ do_interpolate(DBJob *job, FILE *input, FILE *output)
       fprintf(output, "%d", job->gpx->goodpoints + job->gpx->badpoints);
       break;
     case 'T':
-      if (strlen(job->tags) > 0) {
+      if (job->tags != NULL) {
         fputs("and the following tags:\n\n  ", output);
-        fputs(job->tags, output);
+        for (const DBTag *tag = job->tags; tag; tag = tag->next ) {
+          fprintf(output, "  %s\n", tag->name);
+        }
       } else {
         fputs("and no tags.", output);
       }

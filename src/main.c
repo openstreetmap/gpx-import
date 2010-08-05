@@ -31,6 +31,7 @@
 #include "image.h"
 #include "filename.h"
 #include "interpolate.h"
+#include "cache.h"
 
 static bool needs_quit = false;
 static bool needs_logfile_rotate = false;
@@ -125,6 +126,13 @@ main(int argc, char **argv)
     return 1;
   }
   
+  INFO("Connecting to cache");
+  
+  if (cache_connect() == false) {
+    ERROR("Unable to connect to cache");
+    return 1;
+  }
+  
   signal(SIGHUP, do_logfile);
   signal(SIGINT, do_quit);
   signal(SIGTERM, do_quit);
@@ -205,12 +213,33 @@ main(int argc, char **argv)
       /* Destroy this item */
       db_destroy_trace(job->gpx_id);
     }
-    
+
+    DEBUG("Flushing caches");
+
+    cache_delete("views/www.openstreetmap.org/traces");
+    cache_delete("views/www.openstreetmap.org/traces/rss");
+    cache_delete("views/www.openstreetmap.org/user/%s/traces", job->name);
+    cache_delete("views/www.openstreetmap.org/user/%s/traces/rss", job->name);
+
+    for (const DBTag *tag = job->tags; tag; tag = tag->next)
+    {
+      cache_delete("views/www.openstreetmap.org/traces/tag/%s", tag->name);
+      cache_delete("views/www.openstreetmap.org/traces/tag/%s/rss", tag->name);
+      cache_delete("views/www.openstreetmap.org/user/%s/traces/tag/%s", job->name, tag->name);
+      cache_delete("views/www.openstreetmap.org/user/%s/traces/tag/%s/rss", job->name, tag->name);
+    }
+
+    cache_delete("views/www.openstreetmap.org/user/%s/traces/%"PRId64, job->name, job->gpx_id);
+
     DEBUG("Cleaning up");
     db_free_job(job);
     cend = clock();
     INFO("Import consumed %g CPU seconds", (double)(cend - cstart) / CLOCKS_PER_SEC);
   } while (needs_quit == false);
+  
+  INFO("Disconnecting from cache");
+  
+  cache_disconnect();
   
   INFO("Disconnecting from DB");
   

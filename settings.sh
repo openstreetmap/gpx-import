@@ -19,16 +19,19 @@ setting PATH_IMAGES /home/osm/images
 setting PATH_TEMPLATES templates/
 
 # PostgreSQL connection
-#setting PGSQL_HOST localhost
+setting PGSQL_HOST localhost
 #setting PGSQL_USER openstreetmap
-#setting PGSQL_DB openstreetmap
+setting PGSQL_DB openstreetmap
 #setting PGSQL_PASS openstreetmap
 
 # MySQL connection
-setting MYSQL_HOST localhost
-setting MYSQL_USER openstreetmap
-setting MYSQL_DB openstreetmap
-setting MYSQL_PASS openstreetmap
+#setting MYSQL_HOST localhost
+#setting MYSQL_USER openstreetmap
+#setting MYSQL_DB openstreetmap
+#setting MYSQL_PASS openstreetmap
+
+# Memcache caches
+#setting MEMCACHE_SERVERS localhost
 
 # Logging, pidfiles etc
 # If you comment out the LOGFILE then it will log to stdout

@@ -25,14 +25,20 @@
 
 #include "gpx.h"
 
+typedef struct dbtag {
+   char         *name;
+   struct dbtag *next;
+} DBTag;
+
 typedef struct {
   GPX *gpx;
   int64_t gpx_id;
   char *title;
   char *description;
-  char *tags;
+  DBTag *tags;
   char *email;
-  
+  char *name;
+
   /* If this is non-NULL then an error has occurred */
   char *error;
 } DBJob;

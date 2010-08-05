@@ -137,6 +137,7 @@ db_find_work(int minage)
       ret->gpx_id = strtol(row[0], NULL, 0);
       ret->title = BLANKOR(row[1]);
       ret->description = BLANKOR(row[2]);
+      ret->tags = NULL;
       user = strtol(row[3], NULL, 0);
     }
     mysql_free_result(res);
@@ -152,6 +153,7 @@ db_find_work(int minage)
         int tlen = strlen(row[0]) + strlen(row[1]) + 4; /* space '<' '>' NULL */
         ret->email = malloc(tlen);
         snprintf(ret->email, tlen, "%s <%s>", row[0], row[1]);
+        ret->name = strdup(row[0]);
       } else {
         db_error(ret, "Unable to find user information for user %"PRId64"", user);
       }
@@ -163,14 +165,14 @@ db_find_work(int minage)
   
   if (ret != NULL && ret->error == NULL) {
     /* Attempt to retrieve the tags */
-    STMT("SELECT COALESCE(GROUP_CONCAT(tag), '') AS tags FROM gpx_file_tags WHERE gpx_id=%"PRId64"", ret->gpx_id);
+    STMT("SELECT tag FROM gpx_file_tags WHERE gpx_id=%"PRId64"", ret->gpx_id);
     res = mysql_store_result(handle);
     if (res != NULL) {
-      row = mysql_fetch_row(res);
-      if (row != NULL) {
-        ret->tags = BLANKOR(row[0]);
-      } else {
-        db_error(ret, "Unable to retrieve GPX tags for file %"PRId64"\n", ret->gpx_id);
+      while ((row = mysql_fetch_row(res)) != NULL) {
+        DBTag *tag = malloc(sizeof(DBTag));
+        tag->name = strdup(row[0]);
+        tag->next = ret->tags;
+        ret->tags = tag;
       }
       mysql_free_result(res);
     } else {

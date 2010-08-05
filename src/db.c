@@ -23,6 +23,16 @@
 
 #include "db.h"
 
+static void
+db_free_tag(DBTag *tag)
+{
+  if (tag->next != NULL) {
+    db_free_tag(tag->next);
+  }
+
+  free(tag);
+}
+
 void
 db_free_job(DBJob *job)
 {
@@ -35,10 +45,15 @@ db_free_job(DBJob *job)
   
   free(job->title);
   free(job->description);
-  free(job->tags);
+
+  if (job->tags != NULL) {
+    db_free_tag(job->tags);
+  }
+
   free(job->email);
+  free(job->name);
   free(job->error);
-  
+
   free(job);
 }
 
