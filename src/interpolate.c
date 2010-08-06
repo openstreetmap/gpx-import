@@ -62,9 +62,9 @@ do_interpolate(DBJob *job, FILE *input, FILE *output)
       break;
     case 'T':
       if (job->tags != NULL) {
-        fputs("and the following tags:\n\n  ", output);
+        fputs("and the following tags:\n", output);
         for (const DBTag *tag = job->tags; tag; tag = tag->next ) {
-          fprintf(output, "  %s\n", tag->name);
+          fprintf(output, "\n  %s", tag->name);
         }
       } else {
         fputs("and no tags.", output);
