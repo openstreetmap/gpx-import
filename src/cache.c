@@ -47,6 +47,8 @@ cache_connect(void)
   {
     memcached_server_st *server_list;
 
+    memcached_behavior_set(ptr, MEMCACHED_BEHAVIOR_BINARY_PROTOCOL, 1);
+
     server_list = memcached_servers_parse(servers);
 
     memcached_server_push(ptr, server_list);
