@@ -48,6 +48,8 @@ cache_connect(void)
     memcached_server_st *server_list;
 
     memcached_behavior_set(ptr, MEMCACHED_BEHAVIOR_BINARY_PROTOCOL, 1);
+    memcached_behavior_set(ptr, MEMCACHED_BEHAVIOR_KETAMA_WEIGHTED, 1);
+    memcached_behavior_set(ptr, MEMCACHED_BEHAVIOR_HASH, MEMCACHED_HASH_FNV1_32);
 
     server_list = memcached_servers_parse(servers);
 
