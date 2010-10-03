@@ -23,3 +23,7 @@ loaded successfully with %g out of a possible %p points.
 %m
 %l
 %L
+
+You can view the trace here:
+
+  %u

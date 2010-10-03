@@ -85,6 +85,9 @@ do_interpolate(DBJob *job, FILE *input, FILE *output)
         fprintf(output, "Of the failed points, %d had bad longitude", job->gpx->bad_long);
       }
       break;
+    case 'u':
+      fprintf(output, "http://www.openstreetmap.org/user/%s/traces/%ld", job->name, job->gpx_id);
+      break;
     default:
       fputs("\n\n[Unknown % escape: ", output);
       fputc(c, output);
