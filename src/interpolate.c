@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <inttypes.h>
 
 #include <errno.h>
 
@@ -86,7 +87,7 @@ do_interpolate(DBJob *job, FILE *input, FILE *output)
       }
       break;
     case 'u':
-      fprintf(output, "http://www.openstreetmap.org/user/%s/traces/%ld", job->name, job->gpx_id);
+      fprintf(output, "http://www.openstreetmap.org/user/%s/traces/%"PRId64, job->name, job->gpx_id);
       break;
     default:
       fputs("\n\n[Unknown % escape: ", output);
