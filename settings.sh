@@ -94,9 +94,8 @@ case "$CMD" in
 	    if test "x$PID" != "x"; then
 		if kill -0 $PID; then
 		    kill -HUP $PID
-		    echo "GPX daemon sent HUP"
 		    sleep 0.5
-		    $0 check
+		    $0 check > /dev/null || echo "GPX daemon is not running, pid ?= $PID"
 		else
 		    echo "GPX daemon is not running, pid ?= $PID"
 		fi
