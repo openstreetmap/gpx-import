@@ -111,11 +111,10 @@ static void
 gpx_record_error(GPXParseContext *ctx, char *fmt, ...)
 {
   va_list va;
-  int sz;
   char msg[ERR_BUFFER_SIZE];
   
   va_start(va, fmt);
-  sz = vsnprintf(msg, ERR_BUFFER_SIZE, fmt, va);
+  vsnprintf(msg, ERR_BUFFER_SIZE, fmt, va);
   va_end(va);
   
   *(ctx->err) = calloc(2, ERR_BUFFER_SIZE);
