@@ -1,0 +1,3 @@
+src/*.d
+src/*.o
+src/gpx-import
