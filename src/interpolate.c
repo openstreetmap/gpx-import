@@ -3,6 +3,7 @@
  * GPX file importer, email interpolation
  *
  * Copyright Daniel Silverstone <dsilvers@digital-scurf.org>
+ * Updated to encode URLs by Graham JOnes <grahamjones139@gmail.com> August 2011.
  *
  * Written for the OpenStreetMap project.
  *
@@ -26,11 +27,13 @@
 #include <errno.h>
 
 #include "interpolate.h"
+#include "urlcode.h"
 
 static void
 do_interpolate(DBJob *job, FILE *input, FILE *output)
 {
   int c;
+  char *usrEncStr;
   
   while ((c = fgetc(input)) != EOF) {
     if (c != '%') {
@@ -87,7 +90,9 @@ do_interpolate(DBJob *job, FILE *input, FILE *output)
       }
       break;
     case 'u':
-      fprintf(output, "http://www.openstreetmap.org/user/%s/traces/%"PRId64, job->name, job->gpx_id);
+      usrEncStr = url_encode(job->name);
+      fprintf(output, "http://www.openstreetmap.org/user/%s/traces/%"PRId64, usrEncStr, job->gpx_id);
+      free(usrEncStr);
       break;
     default:
       fputs("\n\n[Unknown % escape: ", output);

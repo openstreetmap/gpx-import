@@ -34,7 +34,7 @@ CFLAGS += -I$(shell pg_config --includedir)
 LDFLAGS += -L$(shell pg_config --libdir) -lpq
 endif
 
-MAINOBJS := main.o gpx.o mercator.o image.o log.o db.o filename.o interpolate.o quadtile.o cache.o
+MAINOBJS := main.o gpx.o mercator.o image.o log.o db.o filename.o interpolate.o quadtile.o cache.o urlcode.o
 
 ALLOBJS := $(DB).o $(MAINOBJS)
 
