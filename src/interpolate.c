@@ -3,7 +3,6 @@
  * GPX file importer, email interpolation
  *
  * Copyright Daniel Silverstone <dsilvers@digital-scurf.org>
- * Updated to encode URLs by Graham JOnes <grahamjones139@gmail.com> August 2011.
  *
  * Written for the OpenStreetMap project.
  *
@@ -16,6 +15,10 @@
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
+ *
+ * The URL encoding routines (to_hex and url_encode) are public domain
+ * and were derived from http://www.geekhideout.com/urlcode.shtml by
+ * Graham Jones <grahamjones139@gmail.com>.
  */
 
 #include <stdlib.h>
@@ -23,18 +26,50 @@
 #include <string.h>
 #include <limits.h>
 #include <inttypes.h>
+#include <ctype.h>
 
 #include <errno.h>
 
 #include "interpolate.h"
-#include "urlcode.h"
+
+static char
+to_hex(char c)
+{
+  static const char hex[] = "0123456789abcdef";
+
+  return hex[c & 15];
+}
+
+static char *
+url_encode(const char *str)
+{
+   const unsigned char *strptr = (const unsigned char *)str;
+  char *buf = malloc(strlen(str) * 3 + 1);
+  char *bufptr = buf;
+
+  while (*strptr) {
+    unsigned char c = *strptr++;
+
+    if (isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~') {
+       *bufptr++ = c;
+    } else {
+       *bufptr++ = '%';
+       *bufptr++ = to_hex(c >> 4);
+       *bufptr++ = to_hex(c & 15);
+    }
+  }
+
+  *bufptr = '\0';
+
+  return buf;
+}
 
 static void
 do_interpolate(DBJob *job, FILE *input, FILE *output)
 {
   int c;
   char *usrEncStr;
-  
+
   while ((c = fgetc(input)) != EOF) {
     if (c != '%') {
       fputc(c, output);
@@ -107,7 +142,7 @@ interpolate(DBJob *job, const char *template)
 {
   FILE *outputfile, *inputfile;
   char inputpath[PATH_MAX];
-  
+
   if (getenv("GPX_INTERPOLATE_STDOUT") != NULL) {
     outputfile = stdout;
   } else {
@@ -123,18 +158,18 @@ interpolate(DBJob *job, const char *template)
       return;
     }
   }
-  
+
   snprintf(inputpath, PATH_MAX, "%s/%s", getenv("GPX_PATH_TEMPLATES"), template);
-  
+
   inputfile = fopen(inputpath, "rb");
-  
+
   if (inputfile == NULL) {
     ERROR("Unable to open input file %s (errno=%s)", inputpath, strerror(errno));
   } else {
     do_interpolate(job, inputfile, outputfile);
     fclose(inputfile);
   }
-  
+
   if (outputfile != stdout) {
     if (pclose(outputfile) == -1) {
       ERROR("Failure while closing sendmail! (errno=%s)", strerror(errno));
