@@ -76,15 +76,18 @@ void
 cache_delete(const char *fmt, ...)
 {
   if (ptr) {
-    va_list va;
+    va_list va1;
+    va_list va2;
     int keylen;
     char *key;
 
-    va_start(va, fmt);
-    keylen = vsnprintf(NULL, 0, fmt, va);
+    va_start(va1, fmt);
+    va_copy(va2, va1);
+    keylen = vsnprintf(NULL, 0, fmt, va2);
+    va_end(va2);
     key = malloc(keylen + 18);
-    vsnprintf(key, keylen + 1, fmt, va);
-    va_end(va);
+    vsnprintf(key, keylen + 1, fmt, va1);
+    va_end(va1);
 
     for (const char **localep = locales; *localep; localep++)
     {
