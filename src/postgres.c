@@ -39,20 +39,26 @@ static char escape_buffer[STMT_BUFLEN];
 static PGresult *
 db_execute(const char *statement, ExecStatusType expected)
 {
-   PGresult *result;
+  PGresult *result;
 
-   result = PQexec(handle, statement);
+  result = PQexec(handle, statement);
 
-   if (PQresultStatus(result) != expected) {
-      ERROR("Failure executing PostgreSQL statement: %s: %s",
-            PQresultErrorField(result, PG_DIAG_SQLSTATE),
-            PQresultErrorMessage(result));
+  if (PQresultStatus(result) != expected) {
+    const char *sqlstate = PQresultErrorField(result, PG_DIAG_SQLSTATE);
+    ERROR("Failure executing PostgreSQL statement: %s: %s",
+          sqlstate, PQresultErrorMessage(result));
+    if (strcmp(sqlstate, "57P01") != 0) {
+      INFO("Resetting connection to PostgreSQL server");
+      PQclear(result);
+      PQreset(handle);
+    } else {
       PQclear(result);
       PQexec(handle, "ROLLBACK");
-      return NULL;
-   }
+    }
+    return NULL;
+  }
 
-   return result;
+  return result;
 }
 
 /* Postgres has slightly different semantics to MySQL when doing queries
