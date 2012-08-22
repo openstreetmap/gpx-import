@@ -36,6 +36,24 @@ static PGconn *handle;
 static char statement_buffer[STMT_BUFLEN];
 static char escape_buffer[STMT_BUFLEN];
 
+static PGresult *
+db_execute(const char *statement, ExecStatusType expected)
+{
+   PGresult *result;
+
+   result = PQexec(handle, statement);
+
+   if (PQresultStatus(result) != expected) {
+      ERROR("Failure executing PostgreSQL statement: %s",
+            PQresultErrorMessage(result));
+      PQclear(result);
+      PQexec(handle, "ROLLBACK");
+      return NULL;
+   }
+
+   return result;
+}
+
 /* Postgres has slightly different semantics to MySQL when doing queries
  * than when doing statements, returning different types from the result
  * status function. This means that we can't share code quite as easily
@@ -47,27 +65,15 @@ static char escape_buffer[STMT_BUFLEN];
  */
 #define QUERY(R,V...)							\
   snprintf(statement_buffer, STMT_BUFLEN, V);				\
-  R = PQexec(handle, statement_buffer);					\
-  if (PQresultStatus(R) != PGRES_TUPLES_OK) {				\
-    ERROR("Failure executing PostgreSQL query: %s",			\
-	  PQresultErrorMessage(R));					\
-    PQclear(R);								\
-    PQexec(handle, "ROLLBACK");						\
-    return false;							\
-  }
+  R = db_execute(statement_buffer, PGRES_TUPLES_OK);                    \
+  if (R == NULL) return false;
 
 #define STMT(V...)							\
   do {									\
     PGresult *stmt_result;						\
     snprintf(statement_buffer, STMT_BUFLEN, V);				\
-    stmt_result = PQexec(handle, statement_buffer);			\
-    if (PQresultStatus(stmt_result) != PGRES_COMMAND_OK) {		\
-      ERROR("Failure executing PostgreSQL command: %s",			\
-	    PQresultErrorMessage(stmt_result));				\
-      PQclear(stmt_result);						\
-      PQexec(handle, "ROLLBACK");					\
-      return false;							\
-    }									\
+    stmt_result = db_execute(statement_buffer, PGRES_COMMAND_OK);       \
+    if (stmt_result == NULL) return false;                              \
     PQclear(stmt_result);						\
   } while(0)
 
