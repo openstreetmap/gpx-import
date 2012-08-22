@@ -44,7 +44,8 @@ db_execute(const char *statement, ExecStatusType expected)
    result = PQexec(handle, statement);
 
    if (PQresultStatus(result) != expected) {
-      ERROR("Failure executing PostgreSQL statement: %s",
+      ERROR("Failure executing PostgreSQL statement: %s: %s",
+            PQresultErrorField(result, PG_DIAG_SQLSTATE),
             PQresultErrorMessage(result));
       PQclear(result);
       PQexec(handle, "ROLLBACK");
