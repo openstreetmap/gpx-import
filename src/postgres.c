@@ -47,7 +47,7 @@ db_execute(const char *statement, ExecStatusType expected)
     const char *sqlstate = PQresultErrorField(result, PG_DIAG_SQLSTATE);
     ERROR("Failure executing PostgreSQL statement: %s: %s",
           sqlstate, PQresultErrorMessage(result));
-    if (strcmp(sqlstate, "57P01") != 0) {
+    if (strcmp(sqlstate, "57P01") == 0) {
       INFO("Resetting connection to PostgreSQL server");
       PQclear(result);
       PQreset(handle);
