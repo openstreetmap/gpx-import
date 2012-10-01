@@ -91,6 +91,7 @@ db_destroy_trace(int64_t jobnr)
 {
   STMT("START TRANSACTION");
   INFO("Destroying job %"PRId64"", jobnr);
+  STMT("UPDATE users SET traces_count=traces_count-1 WHERE id=(SELECT user_id FROM gpx_files WHERE id=%"PRId64")", jobnr);
   STMT("DELETE FROM gpx_file_tags WHERE gpx_id=%"PRId64"", jobnr);
   STMT("DELETE FROM gps_points WHERE gpx_id=%"PRId64"", jobnr);
   STMT("DELETE FROM gpx_files WHERE id=%"PRId64"", jobnr);
