@@ -485,8 +485,7 @@ gpx_parse_archive(GPXParseContext *ctx, const char *gpxfile)
     return false;
   }
   
-  archive_read_support_compression_gzip(arch);
-  archive_read_support_compression_bzip2(arch);
+  archive_read_support_filter_all(arch);
   archive_read_support_format_all(arch);
   
   if (archive_read_open_filename(arch, gpxfile, 1) < ARCHIVE_OK) {
@@ -521,7 +520,7 @@ gpx_parse_archive(GPXParseContext *ctx, const char *gpxfile)
   
   out:
   archive_read_close(arch);
-  archive_read_finish(arch);
+  archive_read_free(arch);
   return okay;
 }
 
