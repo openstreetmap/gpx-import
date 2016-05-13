@@ -39,7 +39,7 @@ MAINOBJS := main.o gpx.o mercator.o image.o log.o db.o filename.o interpolate.o 
 ALLOBJS := $(DB).o $(MAINOBJS)
 
 gpx-import: $(ALLOBJS)
-	gcc -o $@ $^ -lexpat -larchive -lz -lbz2 $(LDFLAGS)
+	gcc -o $@ $^ -lm -lexpat -larchive -lz -lbz2 $(LDFLAGS)
 
 clean:
 	$(RM) *.o gpx-import *.d
