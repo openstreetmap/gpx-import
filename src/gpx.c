@@ -531,7 +531,7 @@ static bool
 gpx_try_gzip(GPXParseContext *ctx, const char *gpxfile)
 {
   int fd = open(gpxfile, O_RDONLY);
-  gzFile *f;
+  gzFile f;
   char *buffer = alloca(GPX_BUFLEN);
   ssize_t bufread;
   
