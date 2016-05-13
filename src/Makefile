@@ -10,7 +10,7 @@ all: gpx-import
 DB := mysql
 
 OPT := -O0
-CFLAGS := $(OPT) -g -Wall -std=c99 -D_POSIX_SOURCE -D_BSD_SOURCE -D_XOPEN_SOURCE -include log.h
+CFLAGS := $(OPT) -g -Wall -std=c99 -D_POSIX_SOURCE -D_XOPEN_SOURCE=500 -include log.h
 
 # Comment this out to get the DEBUG log lines
 CFLAGS += -DNDEBUG
